@@ -19,17 +19,16 @@ defmodule Kasandra.Helper.CryptHelper do
     crypted
   end
 
-  def decrypt(stream, decrypted \\ [], key \\ @crypt_key)
-
-  def decrypt(<<_::4, stream::binary>>, _, _) do
-    decrypt(:binary.bin_to_list(stream))
+  @spec decrypt([Integer]) :: binary
+  def decrypt(stream) do
+    decryptor(Enum.drop(stream, 4), [], @crypt_key)
   end
 
-  def decrypt([byte | stream], decrypted, key) do
-    decrypt(stream, [key ^^^ byte | decrypted], byte)
+  defp decryptor([byte | stream], decrypted, key) do
+    decryptor(stream, [key ^^^ byte | decrypted], byte)
   end
 
-  def decrypt([], decrypted, _) do
-    decrypted |> Enum.reverse()
+  defp decryptor([], decrypted, _) do
+    decrypted |> Enum.reverse() |> to_string()
   end
 end
